@@ -1,0 +1,27 @@
+Juegos
+Entretenimiento:
+	Multimedial
+	Redes sociales
+	transaccional imagenes.
+Sistemas de Información:
+	Carrito de compra
+	Billetera virtual
+	Digiturno
+	Parqueadero.
+	
+1. Repositorio: 
+	Documentación
+		Actas
+		Requerimientos (RF - NRF)
+		Arquitectura
+			Arquitectura
+			Mockup
+			Modelado de datos
+	Código: 
+		* Backend
+		* Front
+		* Devops
+2. Planificar proyecto
+	* Trello
+	* Jira
+	* Github project
