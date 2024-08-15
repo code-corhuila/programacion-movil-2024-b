@@ -9,4 +9,4 @@
 - git pull
 - git add -A 
 - git commit -m "mensaje qiue informe el cambio."
-- git push
+- git push.
