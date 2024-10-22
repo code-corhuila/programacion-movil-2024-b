@@ -1,0 +1,7 @@
+{
+  "name": "shopping-cart-react",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
