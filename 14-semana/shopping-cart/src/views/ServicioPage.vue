@@ -2,7 +2,7 @@
   <CrudComponent
     ref="crudComponent"
     title="Servicios"
-    :items="servicios"
+    :items="processedServicios"
     :current-item="currentItem"
     @save="saveServicio"
     @delete="deleteServicio"
@@ -19,7 +19,7 @@
       </ion-item>
       <ion-item>
         <ion-label position="floating">Precio Unitario</ion-label>
-        <ion-input v-model="currentItem.precioUnitario" type="number"></ion-input>
+        <ion-input v-model.number="currentItem.precioUnitario" type="number"></ion-input>
       </ion-item>
     </template>
   </CrudComponent>
@@ -27,7 +27,7 @@
 
 <script>
 import CrudComponent from '@/components/CrudComponent.vue';
-import { getAllServicios, saveServicio, updateServicio, deleteServicio } from '@/services/servicio-service';
+import { getAllServicios, saveServicio, updateServicio, deleteServicio, findServicioById } from '@/services/servicio-service';
 import {
   IonItem,
   IonLabel,
@@ -74,7 +74,8 @@ export default {
         nombre: '',
         precioUnitario: null
       },
-      servicios: []
+      servicios: [],
+      processedServicios: []
     };
   },
   async mounted() {
@@ -83,7 +84,13 @@ export default {
   methods: {
     async loadServicios() {
       try {
-        this.servicios = await getAllServicios();
+        const serviciosData = await getAllServicios();
+        this.processedServicios = serviciosData.map((item) => ({
+          id: item.id,
+          nombre: item.nombre,
+          Código: item.codigo,          
+          "Precio Unitario": item.precioUnitario
+        }));
       } catch (error) {
         console.error('Error al cargar servicios:', error);
         alert('Error al cargar la lista de servicios');
@@ -112,9 +119,16 @@ export default {
         alert('Error al eliminar el servicio');
       }
     },
-    editServicio(servicio) {
-      this.currentItem = { ...servicio };
-      this.$refs.crudComponent.openEditModal();
+    async editServicio(id) {
+      try {
+        console.log('ID del servicio a editar:', id);
+        this.currentItem = await findServicioById(id);
+        console.log('Datos del servicio obtenido:', this.currentItem);
+        this.$refs.crudComponent.openEditModal();
+      } catch (error) {
+        console.error(`Error al editar servicio ID ${id}:`, error);
+        alert('Error al obtener los datos del servicio para edición');
+      }
     },
     resetForm() {
       this.currentItem = { id: null, codigo: '', nombre: '', precioUnitario: null };

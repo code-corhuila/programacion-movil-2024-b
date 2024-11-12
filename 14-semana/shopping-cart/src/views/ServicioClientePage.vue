@@ -1,29 +1,19 @@
 <template>
-  <CrudComponent
-    ref="crudComponent"
-    :items="processedServiciosCliente"
-    :current-item="currentItem"
-    @save="saveServicioCliente"
-    @delete="deleteServicioCliente"
-    @edit="editServicioCliente"
-  >
+  <CrudComponent ref="crudComponent" title="Servicios Cliente" :items="processedServiciosCliente"
+    :current-item="currentItem" @save="saveServicioCliente" @delete="deleteServicioCliente" @edit="editServicioCliente">
     <template #form>
       <ion-item>
         <ion-label position="floating">Cantidad</ion-label>
-        <ion-input v-model="currentItem.cantidad" type="number"></ion-input>
+        <ion-input v-model.number="currentItem.cantidad" type="number"></ion-input>
       </ion-item>
       <ion-item>
         <ion-label position="floating">Total a Pagar</ion-label>
-        <ion-input v-model="currentItem.totalPagar" type="number"></ion-input>
+        <ion-input v-model.number="currentItem.totalPagar" type="number"></ion-input>
       </ion-item>
       <ion-item>
         <ion-label position="floating">Cliente</ion-label>
         <ion-select v-model="currentItem.clienteId.id" interface="popover">
-          <ion-select-option
-            v-for="cliente in clientes"
-            :key="cliente.id"
-            :value="cliente.id"
-          >
+          <ion-select-option v-for="cliente in clientes" :key="cliente.id" :value="cliente.id">
             {{ cliente.nombre }}
           </ion-select-option>
         </ion-select>
@@ -31,11 +21,7 @@
       <ion-item>
         <ion-label position="floating">Servicio</ion-label>
         <ion-select v-model="currentItem.servicioId.id" interface="popover">
-          <ion-select-option
-            v-for="servicio in servicios"
-            :key="servicio.id"
-            :value="servicio.id"
-          >
+          <ion-select-option v-for="servicio in servicios" :key="servicio.id" :value="servicio.id">
             {{ servicio.nombre }}
           </ion-select-option>
         </ion-select>
@@ -46,11 +32,10 @@
 
 <script>
 import CrudComponent from '@/components/CrudComponent.vue';
-import { getAllServiciosCliente, saveServicioCliente, updateServicioCliente, deleteServicioCliente } from '@/services/servicio-cliente-service';
+import { getAllServiciosCliente, saveServicioCliente, updateServicioCliente, deleteServicioCliente, findServicioClienteById } from '@/services/servicio-cliente-service';
 import { getAllClientes } from '@/services/cliente-service';
 import { getAllServicios } from '@/services/servicio-service';
 
-// Importa todos los componentes de Ionic necesarios
 import {
   IonItem,
   IonLabel,
@@ -117,14 +102,15 @@ export default {
     async loadServiciosCliente() {
       try {
         const serviciosClienteData = await getAllServiciosCliente();
-        
-        // Procesar la data para que solo contenga los campos necesarios
+
         this.processedServiciosCliente = serviciosClienteData.map((item, index) => ({
           id: item.id,
-          clienteId: item.clienteId,
-          servicioId: item.servicioId,
-          cantidad: item.cantidad,
-          totalPagar: item.totalPagar,
+          nombre: `Factura ${index + 1}`, 
+          "Cliente": item.clienteId.nombre,
+          Cantidad: item.cantidad,
+          "Total a Pagar": item.totalPagar,
+          "Precio Unitario": item.servicioId.precioUnitario,
+          "Servicio": item.servicioId.nombre
         }));
       } catch (error) {
         console.error('Error al cargar servicios del cliente:', error);
@@ -170,9 +156,16 @@ export default {
         alert('Error al eliminar el servicio del cliente');
       }
     },
-    editServicioCliente(servicioCliente) {
-      this.currentItem = { ...servicioCliente };
-      this.$refs.crudComponent.openEditModal();
+    async editServicioCliente(id) {
+      try {
+        console.log('ID del servicio-cliente a editar:', id);
+        this.currentItem = await findServicioClienteById(id);
+        console.log('Datos del servicio-cliente obtenido:', this.currentItem);
+        this.$refs.crudComponent.openEditModal();
+      } catch (error) {
+        console.error(`Error al editar servicio-cliente ID ${id}:`, error);
+        alert('Error al obtener los datos del servicio del cliente para edición');
+      }
     },
     resetForm() {
       this.currentItem = { id: null, cantidad: null, totalPagar: null, clienteId: { id: null }, servicioId: { id: null } };

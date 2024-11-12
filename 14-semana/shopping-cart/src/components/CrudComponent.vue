@@ -11,16 +11,17 @@
         <ion-button @click="goBack">Regresar</ion-button>
         <ion-button @click="openNewModal">Nuevo</ion-button>
       </div>
-
       <ion-list>
         <ion-card v-for="item in items" :key="item.id">
           <ion-card-header>
+            <!-- Muestra el título usando itemTitle -->
             <ion-card-title>{{ itemTitle(item) }}</ion-card-title>
           </ion-card-header>
           <ion-card-content>
+            <!-- Excluye 'nombre' del contenido de itemDetails -->
             <p v-for="(value, key) in itemDetails(item)" :key="key">{{ key }}: {{ value }}</p>
             <div class="button-group">
-              <ion-button color="primary" size="small" @click="handleEdit(item)">
+              <ion-button color="primary" size="small" @click="handleEdit(item.id)">
                 <ion-icon slot="start" name="create-outline"></ion-icon>
                 Editar
               </ion-button>
@@ -87,7 +88,7 @@ export default {
     },
     openNewModal() {
       this.modalTitle = 'Nuevo Registro';
-      this.$emit('update:currentItem', {});
+      this.$emit('update:currentItem', {}); 
       this.isModalOpen = true;
     },
     openEditModal() {
@@ -103,16 +104,15 @@ export default {
     },
     deleteItem(id) {
       this.$emit('delete', id);
-      this.closeModal();
     },
-    handleEdit(item) {
-      this.$emit('edit', item);
+    handleEdit(id) {
+      this.$emit('edit', id);
     },
     itemTitle(item) {
       return item.nombre || 'Sin Título';
     },
     itemDetails(item) {
-      const { id, ...details } = item;
+      const { id, nombre, ...details } = item;
       return details;
     }
   }

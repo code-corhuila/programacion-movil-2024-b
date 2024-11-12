@@ -2,7 +2,7 @@
   <CrudComponent
     ref="crudComponent"
     title="Clientes"
-    :items="clientes"
+    :items="processedClientes"
     :current-item="currentItem"
     @save="saveCliente"
     @delete="deleteCliente"
@@ -27,7 +27,7 @@
 
 <script>
 import CrudComponent from '@/components/CrudComponent.vue';
-import { getAllClientes, saveCliente, updateCliente, deleteCliente } from '@/services/cliente-service';
+import { getAllClientes, saveCliente, updateCliente, deleteCliente, findClienteById } from '@/services/cliente-service';
 import {
   IonItem,
   IonLabel,
@@ -74,7 +74,8 @@ export default {
         nombre: '',
         correo: ''
       },
-      clientes: []
+      clientes: [],
+      processedClientes: []
     };
   },
   async mounted() {
@@ -83,7 +84,13 @@ export default {
   methods: {
     async loadClientes() {
       try {
-        this.clientes = await getAllClientes();
+        const clientesData = await getAllClientes();
+        this.processedClientes = clientesData.map((item) => ({
+          id: item.id,
+          nombre: item.nombre,
+          Documento: item.documento,          
+          Correo: item.correo
+        }));
       } catch (error) {
         console.error('Error al cargar clientes:', error);
         alert('Error al cargar la lista de clientes');
@@ -92,7 +99,7 @@ export default {
     async saveCliente() {
       try {
         if (this.currentItem.id) {
-          await updateCliente(this.currentItem,this.currentItem.id);
+          await updateCliente(this.currentItem, this.currentItem.id);
         } else {
           await saveCliente(this.currentItem);
         }
@@ -112,9 +119,15 @@ export default {
         alert('Error al eliminar el cliente');
       }
     },
-    editCliente(cliente) {
-      this.currentItem = { ...cliente }; // Copiar los datos de cliente a currentItem
-      this.$refs.crudComponent.openEditModal(); // Llamar al método en CrudComponent para abrir el modal
+    async editCliente(id) {
+      try {
+        console.log('ID del cliente a editar:', id);
+        this.currentItem = await findClienteById(id);        
+        this.$refs.crudComponent.openEditModal(); 
+      } catch (error) {
+        console.error(`Error al editar cliente ID ${id}:`, error);
+        alert('Error al obtener los datos del cliente para edición');
+      }
     },
     resetForm() {
       this.currentItem = { id: null, documento: '', nombre: '', correo: '' };
@@ -133,7 +146,7 @@ export default {
 
 ion-item {
   --padding-start: 16px;
-  --inner-padding-top: 0x; 
+  --inner-padding-top: 0px; 
   --inner-padding-bottom: 0px;
 }
 
